@@ -41,3 +41,6 @@ coverage/
 .claude/settings.local.json
 .mcp.json
 *.tgz
+
+# Documentation (internal use only)
+docs/
