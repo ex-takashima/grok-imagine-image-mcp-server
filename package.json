@@ -5,19 +5,22 @@
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "grok-imagine-image-mcp-server": "./dist/index.js"
+    "grok-imagine-image-mcp-server": "./dist/index.js",
+    "grok-imagine-image-batch": "./dist/cli/batch.js"
   },
   "files": [
     "dist/**/*",
     "README.md",
     "README.ja.md",
     "LICENSE",
-    ".env.example"
+    ".env.example",
+    "examples/**/*"
   ],
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "start": "node dist/index.js",
+    "batch": "node dist/cli/batch.js",
     "dev": "tsc --watch",
     "pack": "npm pack"
   },
@@ -32,7 +35,8 @@
     "model-context-protocol",
     "ai",
     "text-to-image",
-    "anthropic"
+    "anthropic",
+    "batch"
   ],
   "author": "Junji Takashima <takajyun00@gmail.com>",
   "license": "MIT",

@@ -21,6 +21,7 @@ npx grok-imagine-image-mcp-server
 
 - **Image Generation**: Generate new images from text prompts
 - **Image Editing**: Edit existing images with prompts (grok-imagine-image only)
+- **Batch Processing**: Process multiple images via CLI
 - Various aspect ratios (1:1, 4:3, 16:9, and more)
 - Resolution selection (1k, 2k)
 - Generate multiple images at once (up to 10)
@@ -118,6 +119,61 @@ Edit existing images (grok-imagine-image only).
 *One of `image_path`, `image_base64`, or `image_url` is required
 
 > **Note**: The edit_image tool uses the source image as a reference and regenerates the entire image. It maintains the overall composition and style but is not pixel-level inpainting. Best suited for style transformations, subject replacements, and scene modifications.
+
+## Batch Processing CLI
+
+Process multiple images at once using the batch CLI:
+
+```bash
+# Run batch with config file
+npx grok-imagine-image-batch batch.json
+
+# Estimate cost only
+npx grok-imagine-image-batch batch.json --estimate-only
+
+# Custom output directory
+npx grok-imagine-image-batch batch.json --output-dir ./images --format json
+```
+
+### CLI Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--output-dir <path>` | Override output directory | From config |
+| `--format <text\|json>` | Output format | `text` |
+| `--timeout <ms>` | Timeout in milliseconds | `600000` |
+| `--max-concurrent <n>` | Max concurrent jobs (1-10) | `2` |
+| `--estimate-only` | Estimate cost without executing | - |
+| `--allow-any-path` | Allow any output path (CI/CD) | - |
+
+### Batch Configuration File
+
+```json
+{
+  "jobs": [
+    {
+      "prompt": "A beautiful sunset over mountains",
+      "output_path": "sunset.jpg",
+      "aspect_ratio": "16:9",
+      "resolution": "2k"
+    },
+    {
+      "prompt": "Change to nighttime scene",
+      "image_path": "input.jpg",
+      "output_path": "edited.jpg"
+    }
+  ],
+  "output_dir": "./output",
+  "max_concurrent": 3,
+  "default_model": "grok-imagine-image",
+  "retry_policy": {
+    "max_retries": 2,
+    "retry_delay_ms": 1000
+  }
+}
+```
+
+See `examples/` directory for more configuration examples.
 
 ## Supported Aspect Ratios
 

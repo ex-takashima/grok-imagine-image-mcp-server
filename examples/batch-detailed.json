@@ -1,0 +1,41 @@
+{
+  "jobs": [
+    {
+      "prompt": "A majestic mountain landscape at sunrise",
+      "output_path": "mountain_sunrise.jpg",
+      "aspect_ratio": "16:9",
+      "resolution": "2k"
+    },
+    {
+      "prompt": "Portrait of a wise old wizard with a long beard",
+      "output_path": "wizard_portrait.jpg",
+      "aspect_ratio": "3:4",
+      "resolution": "2k"
+    },
+    {
+      "prompt": "A tropical beach with crystal clear water",
+      "output_path": "beach.jpg",
+      "aspect_ratio": "16:9",
+      "resolution": "1k"
+    },
+    {
+      "prompt": "A cozy coffee shop interior with warm lighting",
+      "output_path": "coffee_shop.jpg",
+      "aspect_ratio": "4:3"
+    },
+    {
+      "prompt": "An astronaut floating in space with Earth in the background",
+      "output_path": "astronaut.jpg",
+      "aspect_ratio": "1:1",
+      "resolution": "2k"
+    }
+  ],
+  "output_dir": "./output",
+  "max_concurrent": 3,
+  "default_model": "grok-imagine-image",
+  "default_resolution": "1k",
+  "retry_policy": {
+    "max_retries": 2,
+    "retry_delay_ms": 2000
+  }
+}

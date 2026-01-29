@@ -1,0 +1,26 @@
+{
+  "jobs": [
+    {
+      "prompt": "A park with green trees and blue sky",
+      "output_path": "original_park.jpg"
+    },
+    {
+      "prompt": "Change the scene to autumn with orange and red leaves",
+      "image_path": "./output/original_park.jpg",
+      "output_path": "park_autumn.jpg"
+    },
+    {
+      "prompt": "Transform to a winter scene with snow",
+      "image_path": "./output/original_park.jpg",
+      "output_path": "park_winter.jpg"
+    },
+    {
+      "prompt": "Make it a nighttime scene with stars",
+      "image_path": "./output/original_park.jpg",
+      "output_path": "park_night.jpg"
+    }
+  ],
+  "output_dir": "./output",
+  "max_concurrent": 1,
+  "default_model": "grok-imagine-image"
+}

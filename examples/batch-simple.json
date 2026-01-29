@@ -1,0 +1,14 @@
+{
+  "jobs": [
+    {
+      "prompt": "A beautiful sunset over mountains with orange and purple sky"
+    },
+    {
+      "prompt": "A cute cat playing with a ball of yarn"
+    },
+    {
+      "prompt": "A futuristic city at night with neon lights"
+    }
+  ],
+  "output_dir": "./output"
+}

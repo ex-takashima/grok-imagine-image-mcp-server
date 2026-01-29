@@ -1,0 +1,23 @@
+{
+  "jobs": [
+    {
+      "prompt": "A cute robot mascot character for a tech company",
+      "output_path": "robot_mascot.jpg",
+      "n": 3
+    },
+    {
+      "prompt": "Logo design for a coffee brand, minimalist style",
+      "output_path": "coffee_logo.jpg",
+      "n": 5
+    },
+    {
+      "prompt": "Abstract art with geometric shapes and vibrant colors",
+      "output_path": "abstract_art.jpg",
+      "n": 4,
+      "aspect_ratio": "1:1",
+      "resolution": "2k"
+    }
+  ],
+  "output_dir": "./output/variants",
+  "max_concurrent": 2
+}

@@ -21,6 +21,7 @@ npx grok-imagine-image-mcp-server
 
 - **画像生成**: テキストプロンプトから新規画像を生成
 - **画像編集**: 既存画像をプロンプトで編集（grok-imagine-image のみ）
+- **バッチ処理**: CLIで複数画像を一括処理
 - 多様なアスペクト比をサポート（1:1, 4:3, 16:9 など）
 - 解像度選択（1k, 2k）
 - 一度に最大10枚の画像を生成
@@ -118,6 +119,61 @@ grok-imagine-image-mcp-server
 *`image_path`、`image_base64`、`image_url` のいずれか1つが必須
 
 > **注意**: edit_image は入力画像を「参照」として使用し、画像全体を再生成します。全体の構図やスタイルは維持されますが、ピクセル単位の精密な編集（インペインティング）ではありません。スタイル変換、被写体の置換、シーンの変更に適しています。
+
+## バッチ処理 CLI
+
+バッチCLIで複数の画像を一括処理できます：
+
+```bash
+# 設定ファイルでバッチ実行
+npx grok-imagine-image-batch batch.json
+
+# コスト見積もりのみ
+npx grok-imagine-image-batch batch.json --estimate-only
+
+# 出力先とフォーマットを指定
+npx grok-imagine-image-batch batch.json --output-dir ./images --format json
+```
+
+### CLI オプション
+
+| オプション | 説明 | デフォルト |
+|-----------|------|-----------|
+| `--output-dir <path>` | 出力ディレクトリを上書き | 設定ファイルから |
+| `--format <text\|json>` | 出力フォーマット | `text` |
+| `--timeout <ms>` | タイムアウト（ミリ秒） | `600000` |
+| `--max-concurrent <n>` | 最大同時実行数（1-10） | `2` |
+| `--estimate-only` | コスト見積もりのみ（実行しない） | - |
+| `--allow-any-path` | 任意の出力パスを許可（CI/CD用） | - |
+
+### バッチ設定ファイル
+
+```json
+{
+  "jobs": [
+    {
+      "prompt": "美しい山の夕焼け",
+      "output_path": "sunset.jpg",
+      "aspect_ratio": "16:9",
+      "resolution": "2k"
+    },
+    {
+      "prompt": "夜景に変更",
+      "image_path": "input.jpg",
+      "output_path": "edited.jpg"
+    }
+  ],
+  "output_dir": "./output",
+  "max_concurrent": 3,
+  "default_model": "grok-imagine-image",
+  "retry_policy": {
+    "max_retries": 2,
+    "retry_delay_ms": 1000
+  }
+}
+```
+
+設定例は `examples/` ディレクトリを参照してください。
 
 ## サポートされているアスペクト比
 
