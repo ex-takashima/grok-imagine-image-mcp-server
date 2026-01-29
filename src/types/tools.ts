@@ -2,13 +2,8 @@
  * Type definitions for Grok Imagine Image MCP Server
  */
 
-// Supported models
-export const MODELS = [
-  'grok-imagine-image',
-  'grok-2-image',
-  'grok-2-image-latest',
-  'grok-2-image-1212',
-] as const;
+// Supported models (grok-2-image removed due to aspect ratio issues)
+export const MODELS = ['grok-imagine-image'] as const;
 
 export type Model = (typeof MODELS)[number];
 
@@ -21,29 +16,9 @@ export const GROK_IMAGINE_ASPECT_RATIOS = [
   '16:9',
 ] as const;
 
-// Supported aspect ratios for grok-2-image (14 options)
-export const GROK2_ASPECT_RATIOS = [
-  '1:1',
-  '3:4',
-  '4:3',
-  '9:16',
-  '16:9',
-  '2:3',
-  '3:2',
-  '9:19.5',
-  '19.5:9',
-  '9:20',
-  '20:9',
-  '1:2',
-  '2:1',
-  'auto',
-] as const;
+// All supported aspect ratios (grok-imagine-image only)
+export const ASPECT_RATIOS = GROK_IMAGINE_ASPECT_RATIOS;
 
-// All supported aspect ratios (union)
-export const ASPECT_RATIOS = GROK2_ASPECT_RATIOS;
-
-export type GrokImagineAspectRatio = (typeof GROK_IMAGINE_ASPECT_RATIOS)[number];
-export type Grok2AspectRatio = (typeof GROK2_ASPECT_RATIOS)[number];
 export type AspectRatio = (typeof ASPECT_RATIOS)[number];
 
 // Supported resolutions (2k is not currently available)

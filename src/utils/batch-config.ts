@@ -12,8 +12,7 @@ import type {
 } from '../types/batch.js';
 import {
   MODELS,
-  GROK_IMAGINE_ASPECT_RATIOS,
-  GROK2_ASPECT_RATIOS,
+  ASPECT_RATIOS,
   RESOLUTIONS,
 } from '../types/tools.js';
 
@@ -119,9 +118,9 @@ export function validateBatchConfig(config: BatchConfig): void {
 
   // Validate default_aspect_ratio
   if (config.default_aspect_ratio !== undefined) {
-    if (!GROK2_ASPECT_RATIOS.includes(config.default_aspect_ratio as any)) {
+    if (!ASPECT_RATIOS.includes(config.default_aspect_ratio as any)) {
       throw new BatchConfigError(
-        `Invalid default_aspect_ratio: ${config.default_aspect_ratio}. Must be one of: ${GROK2_ASPECT_RATIOS.join(', ')}`
+        `Invalid default_aspect_ratio: ${config.default_aspect_ratio}. Must be one of: ${ASPECT_RATIOS.join(', ')}`
       );
     }
   }
@@ -147,15 +146,11 @@ function validateJobConfig(job: BatchJobConfig, index: number): void {
     }
   }
 
-  // Validate aspect_ratio based on model
+  // Validate aspect_ratio
   if (job.aspect_ratio !== undefined) {
-    const model = job.model || 'grok-imagine-image';
-    const isGrokImagine = model === 'grok-imagine-image';
-    const validRatios = isGrokImagine ? GROK_IMAGINE_ASPECT_RATIOS : GROK2_ASPECT_RATIOS;
-
-    if (!validRatios.includes(job.aspect_ratio as any)) {
+    if (!ASPECT_RATIOS.includes(job.aspect_ratio as any)) {
       throw new BatchConfigError(
-        `${prefix}: Invalid aspect_ratio "${job.aspect_ratio}" for model ${model}. Must be one of: ${validRatios.join(', ')}`
+        `${prefix}: Invalid aspect_ratio "${job.aspect_ratio}". Must be one of: ${ASPECT_RATIOS.join(', ')}`
       );
     }
   }

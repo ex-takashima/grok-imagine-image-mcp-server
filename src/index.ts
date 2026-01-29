@@ -54,8 +54,8 @@ const TOOLS = [
     name: 'generate_image',
     description:
       'Generate a new image from a text prompt using xAI Grok Imagine Image API. ' +
-      'Default model is grok-imagine-image ($0.02/image). ' +
-      'Supports various aspect ratios (1:1, 4:3, 16:9, etc.) and resolutions (1k, 2k). ' +
+      'Uses grok-imagine-image model ($0.02/image). ' +
+      'Supports aspect ratios: 1:1, 3:4, 4:3, 9:16, 16:9. ' +
       'Can generate multiple images at once (up to 10).',
     inputSchema: {
       type: 'object',
@@ -70,14 +70,8 @@ const TOOLS = [
         },
         model: {
           type: 'string',
-          enum: [
-            'grok-imagine-image',
-            'grok-2-image',
-            'grok-2-image-latest',
-            'grok-2-image-1212',
-          ],
-          description:
-            'Model to use. grok-imagine-image is cheaper ($0.02) and supports editing. grok-2-image costs $0.07. (default: grok-imagine-image)',
+          enum: ['grok-imagine-image'],
+          description: 'Model to use (default: grok-imagine-image, $0.02/image)',
         },
         n: {
           type: 'number',
@@ -87,24 +81,8 @@ const TOOLS = [
         },
         aspect_ratio: {
           type: 'string',
-          enum: [
-            '1:1',
-            '3:4',
-            '4:3',
-            '9:16',
-            '16:9',
-            '2:3',
-            '3:2',
-            '9:19.5',
-            '19.5:9',
-            '9:20',
-            '20:9',
-            '1:2',
-            '2:1',
-            'auto',
-          ],
-          description:
-            'Aspect ratio (default: 1:1). grok-imagine-image supports: 1:1, 3:4, 4:3, 9:16, 16:9. grok-2-image supports all options including auto.',
+          enum: ['1:1', '3:4', '4:3', '9:16', '16:9'],
+          description: 'Aspect ratio (default: 1:1)',
         },
         resolution: {
           type: 'string',

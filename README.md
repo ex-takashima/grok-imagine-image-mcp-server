@@ -32,8 +32,6 @@ npx grok-imagine-image-mcp-server
 | Model | Price | Image Editing | Notes |
 |-------|-------|---------------|-------|
 | `grok-imagine-image` | $0.02/image | ✅ (+$0.002/input) | **Recommended, Default** |
-| `grok-2-image` | $0.07/image | ❌ | Alias: grok-2-image-latest |
-| `grok-2-image-1212` | $0.07/image | ❌ | Version-specific |
 
 ## Requirements
 
@@ -154,8 +152,7 @@ npx grok-imagine-image-batch batch.json --output-dir ./images --format json
     {
       "prompt": "A beautiful sunset over mountains",
       "output_path": "sunset.jpg",
-      "aspect_ratio": "16:9",
-      "resolution": "2k"
+      "aspect_ratio": "16:9"
     },
     {
       "prompt": "Change to nighttime scene",
@@ -177,28 +174,11 @@ See `examples/` directory for more configuration examples.
 
 ## Supported Aspect Ratios
 
-Aspect ratio support differs by model:
-
-### grok-imagine-image (5 options)
-
 | Aspect Ratio | Use Case |
 |--------------|----------|
 | `1:1` | Square, social media profiles (default) |
 | `3:4` / `4:3` | Standard portrait/landscape |
 | `9:16` / `16:9` | Smartphone / widescreen |
-
-### grok-2-image (14 options)
-
-| Aspect Ratio | Use Case |
-|--------------|----------|
-| `1:1` | Square, social media profiles (default) |
-| `3:4` / `4:3` | Standard portrait/landscape |
-| `9:16` / `16:9` | Smartphone / widescreen |
-| `2:3` / `3:2` | Portrait / DSLR photography |
-| `9:19.5` / `19.5:9` | iPhone portrait/landscape |
-| `9:20` / `20:9` | Ultra-tall/wide |
-| `1:2` / `2:1` | Tall/wide banners |
-| `auto` | Automatic selection |
 
 ## Supported Resolutions
 
@@ -211,7 +191,7 @@ Aspect ratio support differs by model:
 
 ```
 # Image generation
-Generate an image of a sunset over mountains with aspect ratio 16:9 and 2k resolution
+Generate an image of a sunset over mountains with aspect ratio 16:9
 
 # Image editing
 Change the background of this image to space

@@ -110,20 +110,11 @@ grok-imagine-image-batch <config.json> [options]
 | モデル | 価格 | 編集対応 |
 |--------|------|---------|
 | `grok-imagine-image` | $0.02/枚 | ✅ (+$0.002/入力) |
-| `grok-2-image` | $0.07/枚 | ❌ |
-| `grok-2-image-latest` | $0.07/枚 | ❌ |
-| `grok-2-image-1212` | $0.07/枚 | ❌ |
 
 ### アスペクト比
 
-**grok-imagine-image:**
 ```
 1:1, 3:4, 4:3, 9:16, 16:9
-```
-
-**grok-2-image:**
-```
-1:1, 3:4, 4:3, 9:16, 16:9, 2:3, 3:2, 9:19.5, 19.5:9, 9:20, 20:9, 1:2, 2:1, auto
 ```
 
 ### 解像度
@@ -313,8 +304,7 @@ grok-imagine-image-batch config.json --format json 2>batch.log >results.json
     {
       "prompt": "A majestic mountain landscape",
       "output_path": "mountain.jpg",
-      "aspect_ratio": "16:9",
-      "resolution": "2k"
+      "aspect_ratio": "16:9"
     },
     {
       "prompt": "Portrait of a wizard",

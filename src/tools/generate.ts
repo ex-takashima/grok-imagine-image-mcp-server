@@ -19,8 +19,6 @@ import { debugLog } from '../utils/debug.js';
 import type { GenerateImageParams, XAIImageResponse } from '../types/tools.js';
 import {
   ASPECT_RATIOS,
-  GROK_IMAGINE_ASPECT_RATIOS,
-  GROK2_ASPECT_RATIOS,
   RESOLUTIONS,
   QUALITIES,
   MODELS,
@@ -83,14 +81,11 @@ export async function generateImage(
     );
   }
 
-  // Validate aspect ratio based on model
-  const isGrokImagine = model === 'grok-imagine-image';
-  const validAspectRatios = isGrokImagine ? GROK_IMAGINE_ASPECT_RATIOS : GROK2_ASPECT_RATIOS;
-
-  if (!validAspectRatios.includes(aspect_ratio as any)) {
+  // Validate aspect ratio
+  if (!ASPECT_RATIOS.includes(aspect_ratio as any)) {
     throw new McpError(
       ErrorCode.InvalidParams,
-      `Invalid aspect_ratio for ${model}: ${aspect_ratio}. Must be one of: ${validAspectRatios.join(', ')}`
+      `Invalid aspect_ratio: ${aspect_ratio}. Must be one of: ${ASPECT_RATIOS.join(', ')}`
     );
   }
 

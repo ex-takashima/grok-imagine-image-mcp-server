@@ -6,7 +6,7 @@
 
 1. [API概要](#api概要)
 2. [認証](#認証)
-3. [モデル比較](#モデル比較)
+3. [モデル](#モデル)
 4. [画像生成 API](#画像生成-api)
 5. [画像編集 API](#画像編集-api)
 6. [エラーハンドリング](#エラーハンドリング)
@@ -36,32 +36,22 @@ APIキーは https://console.x.ai/ から取得。
 
 ---
 
-## モデル比較
+## モデル
 
 | モデル | 価格 | 画像編集 | アスペクト比 |
 |--------|------|---------|-------------|
 | `grok-imagine-image` | $0.02/枚 | ✅ (+$0.002/入力) | 5種類 |
-| `grok-2-image` | $0.07/枚 | ❌ | 14種類 |
-| `grok-2-image-latest` | $0.07/枚 | ❌ | 14種類 |
-| `grok-2-image-1212` | $0.07/枚 | ❌ | 14種類 |
 
 ### アスペクト比サポート
 
-**grok-imagine-image (5種類)**
 ```
 1:1, 3:4, 4:3, 9:16, 16:9
 ```
 
-**grok-2-image (14種類)**
-```
-1:1, 3:4, 4:3, 9:16, 16:9, 2:3, 3:2, 9:19.5, 19.5:9, 9:20, 20:9, 1:2, 2:1, auto
-```
-
 ### 推奨モデル
 
-- **コスト重視**: `grok-imagine-image` ($0.02/枚、3.5倍安い)
+- **コスト重視**: `grok-imagine-image` ($0.02/枚)
 - **編集機能が必要**: `grok-imagine-image` (唯一の選択肢)
-- **多様なアスペクト比**: `grok-2-image` (14種類対応)
 
 ---
 
@@ -77,7 +67,7 @@ POST https://api.x.ai/v1/images/generations
 
 ```typescript
 interface GenerationRequest {
-  model: string;              // "grok-imagine-image" | "grok-2-image" など
+  model: string;              // "grok-imagine-image"
   prompt: string;             // 画像の説明
   n?: number;                 // 生成枚数 (1-10, default: 1)
   aspect_ratio?: string;      // アスペクト比 (default: "1:1")
@@ -151,7 +141,7 @@ interface EditRequest {
 ### 重要な仕様
 
 1. **アスペクト比は指定不可** - 入力画像から自動検出
-2. **モデルは `grok-imagine-image` のみ** - grok-2-image は非対応
+2. **モデルは `grok-imagine-image` のみ**
 3. **画像形式** - `image.url` にデータURLを渡す（ネストされたオブジェクト）
 
 ### 画像の渡し方
@@ -269,25 +259,23 @@ import * as fs from 'fs/promises';
 
 interface GenerateOptions {
   prompt: string;
-  model?: 'grok-imagine-image' | 'grok-2-image';
   aspectRatio?: string;
-  resolution?: '1k' | '2k';
+  resolution?: '1k';
   outputPath?: string;
 }
 
 async function generateImage(apiKey: string, options: GenerateOptions): Promise<string> {
   const {
     prompt,
-    model = 'grok-imagine-image',
     aspectRatio = '1:1',
     resolution = '1k',
     outputPath = 'output.jpg',
   } = options;
 
-  // モデル別アスペクト比バリデーション
-  const grokImagineRatios = ['1:1', '3:4', '4:3', '9:16', '16:9'];
-  if (model === 'grok-imagine-image' && !grokImagineRatios.includes(aspectRatio)) {
-    throw new Error(`grok-imagine-image は ${grokImagineRatios.join(', ')} のみ対応`);
+  // アスペクト比バリデーション
+  const validRatios = ['1:1', '3:4', '4:3', '9:16', '16:9'];
+  if (!validRatios.includes(aspectRatio)) {
+    throw new Error(`サポートされているアスペクト比: ${validRatios.join(', ')}`);
   }
 
   const response = await fetch('https://api.x.ai/v1/images/generations', {
@@ -297,7 +285,7 @@ async function generateImage(apiKey: string, options: GenerateOptions): Promise<
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model,
+      model: 'grok-imagine-image',
       prompt,
       aspect_ratio: aspectRatio,
       resolution,
@@ -327,7 +315,7 @@ async function generateImage(apiKey: string, options: GenerateOptions): Promise<
 interface EditOptions {
   prompt: string;
   imagePath: string;
-  resolution?: '1k' | '2k';
+  resolution?: '1k';
   outputPath?: string;
 }
 
@@ -407,8 +395,8 @@ async function editImage(apiKey: string, options: EditOptions): Promise<string> 
 ### 3. アスペクト比の制限
 
 ```typescript
-// grok-imagine-image で 2:1 を指定するとエラー
-// モデルに応じてバリデーションを実装すること
+// サポートされているアスペクト比のみ使用すること
+// 1:1, 3:4, 4:3, 9:16, 16:9
 ```
 
 ### 4. 編集時のアスペクト比
