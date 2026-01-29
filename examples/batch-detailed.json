@@ -4,13 +4,13 @@
       "prompt": "A majestic mountain landscape at sunrise",
       "output_path": "mountain_sunrise.jpg",
       "aspect_ratio": "16:9",
-      "resolution": "2k"
+      "resolution": "1k"
     },
     {
       "prompt": "Portrait of a wise old wizard with a long beard",
       "output_path": "wizard_portrait.jpg",
       "aspect_ratio": "3:4",
-      "resolution": "2k"
+      "resolution": "1k"
     },
     {
       "prompt": "A tropical beach with crystal clear water",
@@ -27,7 +27,7 @@
       "prompt": "An astronaut floating in space with Earth in the background",
       "output_path": "astronaut.jpg",
       "aspect_ratio": "1:1",
-      "resolution": "2k"
+      "resolution": "1k"
     }
   ],
   "output_dir": "./output",

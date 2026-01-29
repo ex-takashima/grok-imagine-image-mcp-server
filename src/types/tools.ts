@@ -46,8 +46,8 @@ export type GrokImagineAspectRatio = (typeof GROK_IMAGINE_ASPECT_RATIOS)[number]
 export type Grok2AspectRatio = (typeof GROK2_ASPECT_RATIOS)[number];
 export type AspectRatio = (typeof ASPECT_RATIOS)[number];
 
-// Supported resolutions
-export const RESOLUTIONS = ['1k', '2k'] as const;
+// Supported resolutions (2k is not currently available)
+export const RESOLUTIONS = ['1k'] as const;
 export type Resolution = (typeof RESOLUTIONS)[number];
 
 // Quality options (currently no-op, reserved for future use)

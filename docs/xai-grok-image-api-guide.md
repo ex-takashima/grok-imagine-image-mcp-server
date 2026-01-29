@@ -81,7 +81,7 @@ interface GenerationRequest {
   prompt: string;             // 画像の説明
   n?: number;                 // 生成枚数 (1-10, default: 1)
   aspect_ratio?: string;      // アスペクト比 (default: "1:1")
-  resolution?: string;        // "1k" | "2k" (default: "1k")
+  resolution?: string;        // "1k" only (default: "1k")
   response_format?: string;   // "url" | "b64_json" (default: "url")
 }
 ```
@@ -143,7 +143,7 @@ interface EditRequest {
     url: string;              // data:image/jpeg;base64,... 形式
   };
   n?: number;                 // 生成枚数 (1-10, default: 1)
-  resolution?: string;        // "1k" | "2k" (default: "1k")
+  resolution?: string;        // "1k" only (default: "1k")
   response_format?: string;   // "url" | "b64_json"
 }
 ```
@@ -435,7 +435,7 @@ if (data.data[0].revised_prompt) {
 ### 7. 解像度の選択
 
 - `1k` (1024x1024): 標準、高速
-- `2k`: 高解像度、処理時間長め
+
 
 ---
 

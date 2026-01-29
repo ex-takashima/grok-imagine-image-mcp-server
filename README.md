@@ -23,7 +23,7 @@ npx grok-imagine-image-mcp-server
 - **Image Editing**: Edit existing images with prompts (grok-imagine-image only)
 - **Batch Processing**: Process multiple images via CLI
 - Various aspect ratios (1:1, 4:3, 16:9, and more)
-- Resolution selection (1k, 2k)
+- Resolution: 1k (standard)
 - Generate multiple images at once (up to 10)
 - Optional thumbnail preview in MCP responses
 
@@ -205,7 +205,7 @@ Aspect ratio support differs by model:
 | Resolution | Description |
 |------------|-------------|
 | `1k` | Standard resolution (1024x1024, default) |
-| `2k` | High resolution |
+
 
 ## Usage Examples
 

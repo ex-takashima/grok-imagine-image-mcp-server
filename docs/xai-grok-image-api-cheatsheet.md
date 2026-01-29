@@ -38,7 +38,7 @@ fetch('https://api.x.ai/v1/images/generations', {
     model: 'grok-imagine-image',
     prompt: 'プロンプト',
     aspect_ratio: '16:9',      // default: 1:1
-    resolution: '1k',          // 1k | 2k
+    resolution: '1k',          // 1k only
     response_format: 'b64_json', // url | b64_json
     n: 1,                      // 1-10
   }),

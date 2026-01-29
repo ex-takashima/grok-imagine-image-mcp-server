@@ -73,7 +73,7 @@ grok-imagine-image-batch <config.json> [options]
 | `output_path` | string | No | 出力ファイルパス | `generated_{index}.jpg` |
 | `model` | string | No | モデル | 設定ファイルのdefault |
 | `aspect_ratio` | string | No | アスペクト比 | 設定ファイルのdefault |
-| `resolution` | string | No | 解像度（`1k` \| `2k`） | 設定ファイルのdefault |
+| `resolution` | string | No | 解像度（`1k`のみ） | `1k` |
 | `n` | number | No | 生成枚数（1-10） | `1` |
 
 #### 画像編集ジョブ
@@ -85,7 +85,7 @@ grok-imagine-image-batch <config.json> [options]
 | `image_base64` | string | No* | 入力画像のBase64データ | - |
 | `image_url` | string | No* | 入力画像のURL | - |
 | `output_path` | string | No | 出力ファイルパス | `edited_{index}.jpg` |
-| `resolution` | string | No | 解像度（`1k` \| `2k`） | 設定ファイルのdefault |
+| `resolution` | string | No | 解像度（`1k`のみ） | `1k` |
 | `n` | number | No | 生成枚数（1-10） | `1` |
 
 \* `image_path`、`image_base64`、`image_url` のいずれか1つが必須
@@ -131,7 +131,7 @@ grok-imagine-image-batch <config.json> [options]
 | 値 | 説明 |
 |----|------|
 | `1k` | 標準解像度（1024x1024） |
-| `2k` | 高解像度 |
+
 
 ---
 

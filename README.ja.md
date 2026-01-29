@@ -205,7 +205,7 @@ npx grok-imagine-image-batch batch.json --output-dir ./images --format json
 | 解像度 | 説明 |
 |--------|------|
 | `1k` | 標準解像度（1024x1024、デフォルト） |
-| `2k` | 高解像度 |
+
 
 ## 使用例
 

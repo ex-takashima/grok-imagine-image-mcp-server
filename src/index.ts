@@ -108,7 +108,7 @@ const TOOLS = [
         },
         resolution: {
           type: 'string',
-          enum: ['1k', '2k'],
+          enum: ['1k'],
           description: 'Resolution of the generated image (default: 1k)',
         },
         quality: {
@@ -167,7 +167,7 @@ const TOOLS = [
         },
         resolution: {
           type: 'string',
-          enum: ['1k', '2k'],
+          enum: ['1k'],
           description:
             'Resolution of the output image (default: 1k). Aspect ratio is automatically detected from the input image.',
         },
