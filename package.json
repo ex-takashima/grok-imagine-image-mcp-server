@@ -1,0 +1,62 @@
+{
+  "name": "grok-imagine-image-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for xAI Grok Imagine Image API - Generate images using grok-2-image model",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "grok-imagine-image-mcp-server": "./dist/index.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "README.ja.md",
+    "LICENSE",
+    ".env.example"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "pack": "npm pack"
+  },
+  "keywords": [
+    "mcp",
+    "xai",
+    "grok",
+    "grok-2-image",
+    "grok-imagine-image",
+    "image-generation",
+    "claude",
+    "model-context-protocol",
+    "ai",
+    "text-to-image",
+    "anthropic"
+  ],
+  "author": "Junji Takashima <takajyun00@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/takajun/grok-imagine-image-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/takajun/grok-imagine-image-mcp-server/issues"
+  },
+  "homepage": "https://github.com/takajun/grok-imagine-image-mcp-server#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "dotenv": "^16.4.7",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.8",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

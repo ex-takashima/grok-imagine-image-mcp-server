@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test output
+coverage/
+
+# Temp files
+*.tmp
+*.temp
+
+# Generated images (optional - uncomment if you want to ignore)
+# *.png
+# *.jpg
+# *.jpeg
+# *.webp
+
+# Claude Code
+.claude/settings.local.json
+*.tgz
