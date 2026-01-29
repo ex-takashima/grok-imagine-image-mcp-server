@@ -1,7 +1,7 @@
 {
   "name": "grok-imagine-image-mcp-server",
   "version": "1.0.0",
-  "description": "MCP server for xAI Grok Imagine Image API - Generate images using grok-2-image model",
+  "description": "MCP server for xAI Grok Imagine Image API - Generate and edit images using grok-imagine-image model",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
@@ -28,9 +28,9 @@
     "mcp",
     "xai",
     "grok",
-    "grok-2-image",
     "grok-imagine-image",
     "image-generation",
+    "image-editing",
     "claude",
     "model-context-protocol",
     "ai",
