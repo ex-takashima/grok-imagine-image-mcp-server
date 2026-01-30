@@ -1,6 +1,6 @@
 {
   "name": "grok-imagine-image-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for xAI Grok Imagine Image API - Generate and edit images using grok-imagine-image model",
   "main": "dist/index.js",
   "type": "module",
@@ -42,12 +42,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/takajun/grok-imagine-image-mcp-server.git"
+    "url": "git+https://github.com/ex-takashima/grok-imagine-image-mcp-server.git"
   },
   "bugs": {
-    "url": "https://github.com/takajun/grok-imagine-image-mcp-server/issues"
+    "url": "https://github.com/ex-takashima/grok-imagine-image-mcp-server/issues"
   },
-  "homepage": "https://github.com/takajun/grok-imagine-image-mcp-server#readme",
+  "homepage": "https://github.com/ex-takashima/grok-imagine-image-mcp-server#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "dotenv": "^16.4.7",

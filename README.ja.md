@@ -209,7 +209,7 @@ npx grok-imagine-image-batch batch.json --output-dir ./images --format json
 ## 開発
 
 ```bash
-git clone https://github.com/takajun/grok-imagine-image-mcp-server.git
+git clone https://github.com/ex-takashima/grok-imagine-image-mcp-server.git
 cd grok-imagine-image-mcp-server
 npm install
 npm run build
