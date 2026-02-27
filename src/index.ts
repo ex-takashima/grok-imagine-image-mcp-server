@@ -39,7 +39,7 @@ if (!apiKey) {
 const server = new Server(
   {
     name: 'grok-imagine-image-mcp-server',
-    version: '1.0.0',
+    version: '1.1.0',
   },
   {
     capabilities: {
@@ -55,7 +55,7 @@ const TOOLS = [
     description:
       'Generate a new image from a text prompt using xAI Grok Imagine Image API. ' +
       'Uses grok-imagine-image model ($0.02/image). ' +
-      'Supports aspect ratios: 1:1, 3:4, 4:3, 9:16, 16:9. ' +
+      'Supports aspect ratios: 1:1, 3:4, 4:3, 3:2, 2:3, 2:1, 1:2, 9:16, 16:9, 19.5:9, 9:19.5, 20:9, 9:20, auto. ' +
       'Can generate multiple images at once (up to 10).',
     inputSchema: {
       type: 'object',
@@ -81,12 +81,12 @@ const TOOLS = [
         },
         aspect_ratio: {
           type: 'string',
-          enum: ['1:1', '3:4', '4:3', '9:16', '16:9'],
+          enum: ['1:1', '3:4', '4:3', '3:2', '2:3', '2:1', '1:2', '9:16', '16:9', '19.5:9', '9:19.5', '20:9', '9:20', 'auto'],
           description: 'Aspect ratio (default: 1:1)',
         },
         resolution: {
           type: 'string',
-          enum: ['1k'],
+          enum: ['1k', '2k'],
           description: 'Resolution of the generated image (default: 1k)',
         },
         quality: {
@@ -113,7 +113,8 @@ const TOOLS = [
     description:
       'Edit an existing image using xAI Grok Imagine Image API. ' +
       'Only supported by grok-imagine-image model ($0.02/image + $0.002/input image). ' +
-      'Provide a source image via file path, base64, or URL along with a prompt describing the desired changes.',
+      'Provide a source image via file path, base64, or URL along with a prompt describing the desired changes. ' +
+      'Supports up to 3 input images via image_paths/image_base64s/image_urls arrays.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -123,15 +124,33 @@ const TOOLS = [
         },
         image_path: {
           type: 'string',
-          description: 'Path to the source image file to edit',
+          description: 'Path to the source image file to edit (single image)',
         },
         image_base64: {
           type: 'string',
-          description: 'Base64 encoded source image to edit',
+          description: 'Base64 encoded source image to edit (single image)',
         },
         image_url: {
           type: 'string',
-          description: 'URL of the source image to edit',
+          description: 'URL of the source image to edit (single image)',
+        },
+        image_paths: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Paths to multiple source image files to edit (max 3)',
+          maxItems: 3,
+        },
+        image_base64s: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Base64 encoded source images to edit (max 3)',
+          maxItems: 3,
+        },
+        image_urls: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'URLs of source images to edit (max 3)',
+          maxItems: 3,
         },
         output_path: {
           type: 'string',
@@ -143,11 +162,16 @@ const TOOLS = [
           minimum: 1,
           maximum: 10,
         },
+        aspect_ratio: {
+          type: 'string',
+          enum: ['1:1', '3:4', '4:3', '3:2', '2:3', '2:1', '1:2', '9:16', '16:9', '19.5:9', '9:19.5', '20:9', '9:20', 'auto'],
+          description: 'Aspect ratio for multi-image editing (overrides auto-detection from input image)',
+        },
         resolution: {
           type: 'string',
-          enum: ['1k'],
+          enum: ['1k', '2k'],
           description:
-            'Resolution of the output image (default: 1k). Aspect ratio is automatically detected from the input image.',
+            'Resolution of the output image (default: 1k)',
         },
         return_base64: {
           type: 'boolean',

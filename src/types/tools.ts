@@ -7,13 +7,22 @@ export const MODELS = ['grok-imagine-image'] as const;
 
 export type Model = (typeof MODELS)[number];
 
-// Supported aspect ratios for grok-imagine-image (5 options)
+// Supported aspect ratios for grok-imagine-image (14 options)
 export const GROK_IMAGINE_ASPECT_RATIOS = [
   '1:1',
   '3:4',
   '4:3',
+  '3:2',
+  '2:3',
+  '2:1',
+  '1:2',
   '9:16',
   '16:9',
+  '19.5:9',
+  '9:19.5',
+  '20:9',
+  '9:20',
+  'auto',
 ] as const;
 
 // All supported aspect ratios (grok-imagine-image only)
@@ -21,8 +30,8 @@ export const ASPECT_RATIOS = GROK_IMAGINE_ASPECT_RATIOS;
 
 export type AspectRatio = (typeof ASPECT_RATIOS)[number];
 
-// Supported resolutions (2k is not currently available)
-export const RESOLUTIONS = ['1k'] as const;
+// Supported resolutions
+export const RESOLUTIONS = ['1k', '2k'] as const;
 export type Resolution = (typeof RESOLUTIONS)[number];
 
 // Quality options (currently no-op, reserved for future use)
@@ -47,9 +56,13 @@ export interface EditImageParams {
   image_path?: string;
   image_base64?: string;
   image_url?: string;
+  image_paths?: string[];
+  image_base64s?: string[];
+  image_urls?: string[];
   output_path?: string;
   model?: Model;
   n?: number;
+  aspect_ratio?: AspectRatio;
   resolution?: Resolution;
   response_format?: 'url' | 'b64_json';
   return_base64?: boolean;

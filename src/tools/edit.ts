@@ -20,7 +20,7 @@ import {
 } from '../utils/path.js';
 import { debugLog } from '../utils/debug.js';
 import type { EditImageParams, XAIImageResponse } from '../types/tools.js';
-import { RESOLUTIONS, MODELS } from '../types/tools.js';
+import { RESOLUTIONS, MODELS, ASPECT_RATIOS } from '../types/tools.js';
 
 // Edit endpoint is different from generation endpoint
 const XAI_EDIT_ENDPOINT = 'https://api.x.ai/v1/images/edits';
@@ -42,6 +42,7 @@ export async function editImage(
   debugLog('Edit image called with params:', {
     ...params,
     image_base64: params.image_base64 ? '[REDACTED]' : undefined,
+    image_base64s: params.image_base64s ? '[REDACTED]' : undefined,
   });
 
   const {
@@ -49,20 +50,37 @@ export async function editImage(
     image_path,
     image_base64,
     image_url,
+    image_paths,
+    image_base64s,
+    image_urls,
     output_path = 'edited_image.jpg',
     model = 'grok-imagine-image',
     n = 1,
+    aspect_ratio,
     resolution = '1k',
     response_format = 'b64_json',
     return_base64 = false,
     include_thumbnail,
   } = params;
 
+  // Determine if multi-image mode
+  const hasMultipleImages = image_paths || image_base64s || image_urls;
+  const hasSingleImage = image_path || image_base64 || image_url;
+
   // Validate that at least one image source is provided
-  if (!image_path && !image_base64 && !image_url) {
+  if (!hasSingleImage && !hasMultipleImages) {
     throw new McpError(
       ErrorCode.InvalidParams,
-      'One of image_path, image_base64, or image_url is required'
+      'One of image_path, image_base64, image_url, image_paths, image_base64s, or image_urls is required'
+    );
+  }
+
+  // Validate max 3 images for multi-image mode
+  const multiImageCount = (image_paths?.length || 0) + (image_base64s?.length || 0) + (image_urls?.length || 0);
+  if (hasMultipleImages && multiImageCount > 3) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      'Maximum 3 input images are supported for multi-image editing'
     );
   }
 
@@ -107,49 +125,52 @@ export async function editImage(
     );
   }
 
+  if (aspect_ratio !== undefined && !ASPECT_RATIOS.includes(aspect_ratio as any)) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Invalid aspect_ratio: ${aspect_ratio}. Must be one of: ${ASPECT_RATIOS.join(', ')}`
+    );
+  }
+
   try {
-    // Prepare image URL
-    let imageDataUrl: string;
-
-    if (image_base64) {
-      imageDataUrl = `data:image/jpeg;base64,${image_base64}`;
-      debugLog('Using provided base64 image');
-    } else if (image_path) {
-      // Read image from file and convert to data URL
-      const absolutePath = path.isAbsolute(image_path)
-        ? image_path
-        : path.join(process.cwd(), image_path);
-
-      debugLog(`Reading image from: ${absolutePath}`);
-
-      try {
-        const imageBuffer = await fs.readFile(absolutePath);
-        const base64 = imageBuffer.toString('base64');
-        imageDataUrl = `data:image/jpeg;base64,${base64}`;
-        debugLog(`Image loaded: ${imageBuffer.length} bytes`);
-      } catch (error: any) {
-        throw new McpError(
-          ErrorCode.InvalidParams,
-          `Failed to read image file: ${error.message}`
-        );
-      }
-    } else if (image_url) {
-      // Use URL directly or download and convert
-      if (image_url.startsWith('data:')) {
-        imageDataUrl = image_url;
-      } else {
-        // Download image from URL and convert to data URL
-        debugLog(`Downloading image from: ${image_url}`);
-
+    // Helper to resolve a single image source to a data URL
+    async function resolveImageSource(
+      srcBase64?: string,
+      srcPath?: string,
+      srcUrl?: string
+    ): Promise<string> {
+      if (srcBase64) {
+        return `data:image/jpeg;base64,${srcBase64}`;
+      } else if (srcPath) {
+        const absolutePath = path.isAbsolute(srcPath)
+          ? srcPath
+          : path.join(process.cwd(), srcPath);
+        debugLog(`Reading image from: ${absolutePath}`);
         try {
-          const response = await fetch(image_url);
+          const imageBuffer = await fs.readFile(absolutePath);
+          const base64 = imageBuffer.toString('base64');
+          debugLog(`Image loaded: ${imageBuffer.length} bytes`);
+          return `data:image/jpeg;base64,${base64}`;
+        } catch (error: any) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            `Failed to read image file: ${error.message}`
+          );
+        }
+      } else if (srcUrl) {
+        if (srcUrl.startsWith('data:')) {
+          return srcUrl;
+        }
+        debugLog(`Downloading image from: ${srcUrl}`);
+        try {
+          const response = await fetch(srcUrl);
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
           }
           const arrayBuffer = await response.arrayBuffer();
           const base64 = Buffer.from(arrayBuffer).toString('base64');
-          imageDataUrl = `data:image/jpeg;base64,${base64}`;
           debugLog(`Image downloaded: ${arrayBuffer.byteLength} bytes`);
+          return `data:image/jpeg;base64,${base64}`;
         } catch (error: any) {
           throw new McpError(
             ErrorCode.InvalidParams,
@@ -157,7 +178,6 @@ export async function editImage(
           );
         }
       }
-    } else {
       throw new McpError(ErrorCode.InvalidParams, 'No image source provided');
     }
 
@@ -167,17 +187,55 @@ export async function editImage(
     const requestBody: Record<string, any> = {
       model,
       prompt,
-      image: {
-        url: imageDataUrl,
-      },
       n,
       resolution,
       response_format,
     };
 
+    if (hasMultipleImages) {
+      // Multi-image mode: collect all images into an array
+      const imageObjects: Array<{ type: string; url: string }> = [];
+
+      if (image_paths) {
+        for (const p of image_paths) {
+          const dataUrl = await resolveImageSource(undefined, p, undefined);
+          imageObjects.push({ type: 'image_url', url: dataUrl });
+        }
+      }
+      if (image_base64s) {
+        for (const b of image_base64s) {
+          const dataUrl = await resolveImageSource(b, undefined, undefined);
+          imageObjects.push({ type: 'image_url', url: dataUrl });
+        }
+      }
+      if (image_urls) {
+        for (const u of image_urls) {
+          const dataUrl = await resolveImageSource(undefined, undefined, u);
+          imageObjects.push({ type: 'image_url', url: dataUrl });
+        }
+      }
+
+      requestBody.images = imageObjects;
+
+      // aspect_ratio can be specified for multi-image editing
+      if (aspect_ratio) {
+        requestBody.aspect_ratio = aspect_ratio;
+      }
+
+      debugLog(`Multi-image mode: ${imageObjects.length} images`);
+    } else {
+      // Single image mode (backward compatible)
+      const imageDataUrl = await resolveImageSource(image_base64, image_path, image_url);
+      requestBody.image = {
+        type: 'image_url',
+        url: imageDataUrl,
+      };
+    }
+
     debugLog('Request body:', {
       ...requestBody,
-      image: { url: '[DATA_URL]' },
+      image: requestBody.image ? { type: 'image_url', url: '[DATA_URL]' } : undefined,
+      images: requestBody.images ? requestBody.images.map(() => ({ type: 'image_url', url: '[DATA_URL]' })) : undefined,
     });
 
     // Call xAI Edit API
@@ -295,6 +353,9 @@ export async function editImage(
     resultText += `\nParameters:`;
     resultText += `\n  - Model: ${model}`;
     resultText += `\n  - Resolution: ${resolution}`;
+    if (aspect_ratio) {
+      resultText += `\n  - Aspect ratio: ${aspect_ratio}`;
+    }
 
     // Add revised prompt if available
     if (revisedPrompts.length > 0) {

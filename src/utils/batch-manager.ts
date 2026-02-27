@@ -72,19 +72,33 @@ export class BatchManager {
    */
   estimateBatchCost(config: BatchConfig): CostEstimate {
     const breakdown: CostEstimate['breakdown'] = [];
-    const modelCounts: Record<string, { count: number; images: number; isEdit: boolean }> = {};
+    const modelCounts: Record<string, { count: number; images: number; isEdit: boolean; inputImages: number }> = {};
 
     for (const job of config.jobs) {
       const model = job.model || config.default_model || 'grok-imagine-image';
       const n = job.n || 1;
-      const isEdit = !!(job.image_path || job.image_base64 || job.image_url);
+      const isEdit = !!(job.image_path || job.image_base64 || job.image_url || job.image_paths || job.image_base64s || job.image_urls);
       const key = `${model}${isEdit ? '_edit' : ''}`;
 
+      // Count input images for cost estimation
+      const inputImageCount = isEdit
+        ? Math.max(
+            1,
+            (job.image_paths?.length || 0) +
+            (job.image_base64s?.length || 0) +
+            (job.image_urls?.length || 0) +
+            (job.image_path ? 1 : 0) +
+            (job.image_base64 ? 1 : 0) +
+            (job.image_url ? 1 : 0)
+          )
+        : 0;
+
       if (!modelCounts[key]) {
-        modelCounts[key] = { count: 0, images: 0, isEdit };
+        modelCounts[key] = { count: 0, images: 0, isEdit, inputImages: 0 };
       }
       modelCounts[key].count++;
       modelCounts[key].images += n;
+      modelCounts[key].inputImages += inputImageCount;
     }
 
     let totalMin = 0;
@@ -95,7 +109,7 @@ export class BatchManager {
       const modelName = key.replace('_edit', '') as keyof typeof MODEL_COSTS;
       const costs = MODEL_COSTS[modelName] || MODEL_COSTS['grok-imagine-image'];
       const baseCost = costs.base * data.images;
-      const editCost = data.isEdit ? costs.edit_input * data.count : 0;
+      const editCost = data.isEdit ? costs.edit_input * data.inputImages : 0;
       const cost = baseCost + editCost;
 
       breakdown.push({
@@ -230,7 +244,7 @@ export class BatchManager {
     config: BatchConfig
   ): Promise<BatchJobResult> {
     const jobIndex = index + 1;
-    const isEditJob = !!(job.image_path || job.image_base64 || job.image_url);
+    const isEditJob = !!(job.image_path || job.image_base64 || job.image_url || job.image_paths || job.image_base64s || job.image_urls);
     const retryPolicy = config.retry_policy || { max_retries: 2, retry_delay_ms: 1000 };
     const maxRetries = retryPolicy.max_retries ?? 2;
     const retryDelay = retryPolicy.retry_delay_ms ?? 1000;
@@ -254,9 +268,13 @@ export class BatchManager {
             image_path: job.image_path,
             image_base64: job.image_base64,
             image_url: job.image_url,
+            image_paths: job.image_paths,
+            image_base64s: job.image_base64s,
+            image_urls: job.image_urls,
             output_path: outputPath,
             model: job.model || config.default_model,
             n: job.n || 1,
+            aspect_ratio: job.aspect_ratio,
             resolution: job.resolution || config.default_resolution,
           });
         } else {

@@ -21,13 +21,21 @@ export interface BatchJobConfig {
   /** Number of images to generate for this prompt (1-10, default: 1) */
   n?: number;
 
-  // Edit-specific options
+  // Edit-specific options (single image)
   /** Path to source image for editing */
   image_path?: string;
   /** Base64 encoded source image for editing */
   image_base64?: string;
   /** URL of source image for editing */
   image_url?: string;
+
+  // Edit-specific options (multiple images, max 3)
+  /** Paths to multiple source image files for editing */
+  image_paths?: string[];
+  /** Base64 encoded source images for editing */
+  image_base64s?: string[];
+  /** URLs of source images for editing */
+  image_urls?: string[];
 }
 
 /**

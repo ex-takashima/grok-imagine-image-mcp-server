@@ -172,7 +172,10 @@ function validateJobConfig(job: BatchJobConfig, index: number): void {
   }
 
   // Check for edit job requirements
-  const isEditJob = job.image_path || job.image_base64 || job.image_url;
+  const hasSingleImage = job.image_path || job.image_base64 || job.image_url;
+  const hasMultipleImages = job.image_paths || job.image_base64s || job.image_urls;
+  const isEditJob = hasSingleImage || hasMultipleImages;
+
   if (isEditJob) {
     const model = job.model || 'grok-imagine-image';
     if (model !== 'grok-imagine-image') {
@@ -181,10 +184,22 @@ function validateJobConfig(job: BatchJobConfig, index: number): void {
       );
     }
 
-    // Edit jobs cannot specify aspect_ratio
-    if (job.aspect_ratio !== undefined) {
+    // Validate max 3 images for multi-image mode
+    const multiImageCount =
+      (job.image_paths?.length || 0) +
+      (job.image_base64s?.length || 0) +
+      (job.image_urls?.length || 0);
+    if (hasMultipleImages && multiImageCount > 3) {
       throw new BatchConfigError(
-        `${prefix}: aspect_ratio cannot be specified for edit jobs (auto-detected from input image)`
+        `${prefix}: Maximum 3 input images are supported for multi-image editing`
+      );
+    }
+
+    // Edit jobs with single image only cannot specify aspect_ratio (auto-detected)
+    // Edit jobs with multiple images can specify aspect_ratio to override
+    if (job.aspect_ratio !== undefined && !hasMultipleImages) {
+      throw new BatchConfigError(
+        `${prefix}: aspect_ratio cannot be specified for single-image edit jobs (auto-detected from input image)`
       );
     }
   }
@@ -306,7 +321,7 @@ export function resolveOutputPath(
     }
   } else {
     // Generate default filename
-    const isEditJob = job.image_path || job.image_base64 || job.image_url;
+    const isEditJob = job.image_path || job.image_base64 || job.image_url || job.image_paths || job.image_base64s || job.image_urls;
     const prefix = isEditJob ? 'edited' : 'generated';
     outputPath = path.join(outputDir, `${prefix}_${index + 1}.jpg`);
   }

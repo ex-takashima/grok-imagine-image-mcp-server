@@ -30,7 +30,7 @@ import { BatchManager } from '../utils/batch-manager.js';
 // Load environment variables
 dotenv.config();
 
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 
 /**
  * Parse command line arguments
