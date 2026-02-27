@@ -198,8 +198,8 @@ export async function generateImage(
       }
 
       if (imageData.b64_json) {
-        // Save base64 image
-        await saveBase64Image(imageData.b64_json, imagePath);
+        // Save base64 image (path may change if extension is corrected)
+        imagePath = await saveBase64Image(imageData.b64_json, imagePath);
         savedPaths.push(imagePath);
         if (return_base64) {
           base64Results.push(imageData.b64_json);

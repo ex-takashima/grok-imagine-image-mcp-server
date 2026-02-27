@@ -2,8 +2,8 @@
  * Type definitions for Grok Imagine Image MCP Server
  */
 
-// Supported models (grok-2-image removed due to aspect ratio issues)
-export const MODELS = ['grok-imagine-image'] as const;
+// Supported models
+export const MODELS = ['grok-imagine-image', 'grok-imagine-image-pro'] as const;
 
 export type Model = (typeof MODELS)[number];
 

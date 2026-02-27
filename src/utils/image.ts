@@ -7,15 +7,69 @@ import * as path from 'path';
 import { debugLog } from './debug.js';
 
 /**
- * Save base64 image data to file
+ * Strip data URL prefix from base64 string if present.
+ * Returns { mimeType, base64 } where mimeType is extracted from the prefix (or undefined).
+ * Handles formats like "data:image/png;base64,iVBOR..." returned by xAI API for 2k resolution.
+ */
+export function stripDataUrlPrefix(data: string): { mimeType?: string; base64: string } {
+  const match = data.match(/^data:([^;]+);base64,/);
+  if (match) {
+    return { mimeType: match[1], base64: data.slice(match[0].length) };
+  }
+  return { base64: data };
+}
+
+/**
+ * Detect actual image format from buffer magic bytes and return the correct extension.
+ */
+export function detectImageExtension(buffer: Buffer): string {
+  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+    return '.png';
+  }
+  if (buffer[0] === 0xff && buffer[1] === 0xd8) {
+    return '.jpg';
+  }
+  if (buffer.subarray(0, 4).toString() === 'RIFF' && buffer.subarray(8, 12).toString() === 'WEBP') {
+    return '.webp';
+  }
+  return '.png'; // default fallback
+}
+
+/**
+ * Replace the file extension of a path, preserving the base name.
+ */
+export function replaceExtension(filePath: string, newExt: string): string {
+  const parsed = path.parse(filePath);
+  return path.join(parsed.dir, parsed.name + newExt);
+}
+
+/**
+ * Save base64 image data to file.
+ * Handles data URL prefix (e.g. "data:image/png;base64,...") and
+ * corrects file extension to match actual image format.
+ * Returns the actual output path used (extension may differ from input).
  */
 export async function saveBase64Image(
   base64Data: string,
   outputPath: string
-): Promise<void> {
-  const buffer = Buffer.from(base64Data, 'base64');
-  await fs.writeFile(outputPath, buffer);
-  debugLog(`Saved image to: ${outputPath}`);
+): Promise<string> {
+  // Strip data URL prefix if present (xAI API returns this for 2k resolution)
+  const { base64 } = stripDataUrlPrefix(base64Data);
+  const buffer = Buffer.from(base64, 'base64');
+
+  // Detect actual format and correct extension if needed
+  const actualExt = detectImageExtension(buffer);
+  const currentExt = path.extname(outputPath).toLowerCase();
+  let finalPath = outputPath;
+
+  if (currentExt !== actualExt && currentExt !== '') {
+    finalPath = replaceExtension(outputPath, actualExt);
+    debugLog(`Corrected extension: ${currentExt} -> ${actualExt}`);
+  }
+
+  await fs.writeFile(finalPath, buffer);
+  debugLog(`Saved image to: ${finalPath} (${buffer.length} bytes)`);
+  return finalPath;
 }
 
 /**

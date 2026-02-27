@@ -39,7 +39,7 @@ if (!apiKey) {
 const server = new Server(
   {
     name: 'grok-imagine-image-mcp-server',
-    version: '1.1.0',
+    version: '1.2.0',
   },
   {
     capabilities: {
@@ -54,7 +54,7 @@ const TOOLS = [
     name: 'generate_image',
     description:
       'Generate a new image from a text prompt using xAI Grok Imagine Image API. ' +
-      'Uses grok-imagine-image model ($0.02/image). ' +
+      'Models: grok-imagine-image ($0.02/image), grok-imagine-image-pro ($0.07/image, higher quality). ' +
       'Supports aspect ratios: 1:1, 3:4, 4:3, 3:2, 2:3, 2:1, 1:2, 9:16, 16:9, 19.5:9, 9:19.5, 20:9, 9:20, auto. ' +
       'Can generate multiple images at once (up to 10).',
     inputSchema: {
@@ -70,8 +70,8 @@ const TOOLS = [
         },
         model: {
           type: 'string',
-          enum: ['grok-imagine-image'],
-          description: 'Model to use (default: grok-imagine-image, $0.02/image)',
+          enum: ['grok-imagine-image', 'grok-imagine-image-pro'],
+          description: 'Model to use (default: grok-imagine-image $0.02/image, pro $0.07/image)',
         },
         n: {
           type: 'number',
@@ -112,7 +112,7 @@ const TOOLS = [
     name: 'edit_image',
     description:
       'Edit an existing image using xAI Grok Imagine Image API. ' +
-      'Only supported by grok-imagine-image model ($0.02/image + $0.002/input image). ' +
+      'Models: grok-imagine-image ($0.02/image + $0.002/input), grok-imagine-image-pro ($0.07/image + $0.002/input). ' +
       'Provide a source image via file path, base64, or URL along with a prompt describing the desired changes. ' +
       'Supports up to 3 input images via image_paths/image_base64s/image_urls arrays.',
     inputSchema: {

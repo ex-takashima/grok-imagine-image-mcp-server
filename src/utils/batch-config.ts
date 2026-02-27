@@ -178,9 +178,9 @@ function validateJobConfig(job: BatchJobConfig, index: number): void {
 
   if (isEditJob) {
     const model = job.model || 'grok-imagine-image';
-    if (model !== 'grok-imagine-image') {
+    if (model !== 'grok-imagine-image' && model !== 'grok-imagine-image-pro') {
       throw new BatchConfigError(
-        `${prefix}: Image editing is only supported by grok-imagine-image model`
+        `${prefix}: Image editing is only supported by grok-imagine-image and grok-imagine-image-pro models`
       );
     }
 

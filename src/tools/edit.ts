@@ -103,11 +103,11 @@ export async function editImage(
     );
   }
 
-  // Only grok-imagine-image supports image editing
-  if (model !== 'grok-imagine-image') {
+  // Only grok-imagine-image and grok-imagine-image-pro support image editing
+  if (model !== 'grok-imagine-image' && model !== 'grok-imagine-image-pro') {
     throw new McpError(
       ErrorCode.InvalidParams,
-      `Image editing is only supported by grok-imagine-image model. Got: ${model}`
+      `Image editing is only supported by grok-imagine-image and grok-imagine-image-pro models. Got: ${model}`
     );
   }
 
@@ -313,8 +313,8 @@ export async function editImage(
       }
 
       if (imgData.b64_json) {
-        // Save base64 image
-        await saveBase64Image(imgData.b64_json, imagePath);
+        // Save base64 image (path may change if extension is corrected)
+        imagePath = await saveBase64Image(imgData.b64_json, imagePath);
         savedPaths.push(imagePath);
         if (return_base64) {
           base64Results.push(imgData.b64_json);

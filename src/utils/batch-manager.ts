@@ -52,6 +52,7 @@ class Semaphore {
  */
 const MODEL_COSTS = {
   'grok-imagine-image': { base: 0.02, edit_input: 0.002 },
+  'grok-imagine-image-pro': { base: 0.07, edit_input: 0.002 },
   'grok-2-image': { base: 0.07, edit_input: 0 },
   'grok-2-image-latest': { base: 0.07, edit_input: 0 },
   'grok-2-image-1212': { base: 0.07, edit_input: 0 },
