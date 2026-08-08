@@ -48,14 +48,14 @@ class Semaphore {
 }
 
 /**
- * Cost per image by model
+ * Cost per image by model, per output resolution.
+ * Source: https://docs.x.ai/developers/models/grok-imagine-image
+ *         https://docs.x.ai/developers/models/grok-imagine-image-pro
+ * Note: grok-imagine-image-pro is an alias of grok-imagine-image-quality.
  */
 const MODEL_COSTS = {
-  'grok-imagine-image': { base: 0.02, edit_input: 0.002 },
-  'grok-imagine-image-pro': { base: 0.07, edit_input: 0.002 },
-  'grok-2-image': { base: 0.07, edit_input: 0 },
-  'grok-2-image-latest': { base: 0.07, edit_input: 0 },
-  'grok-2-image-1212': { base: 0.07, edit_input: 0 },
+  'grok-imagine-image': { base: { '1k': 0.02, '2k': 0.02 }, edit_input: 0.002 },
+  'grok-imagine-image-pro': { base: { '1k': 0.05, '2k': 0.07 }, edit_input: 0.01 },
 };
 
 /**
@@ -73,13 +73,17 @@ export class BatchManager {
    */
   estimateBatchCost(config: BatchConfig): CostEstimate {
     const breakdown: CostEstimate['breakdown'] = [];
-    const modelCounts: Record<string, { count: number; images: number; isEdit: boolean; inputImages: number }> = {};
+    const modelCounts: Record<
+      string,
+      { model: string; resolution: '1k' | '2k'; count: number; images: number; isEdit: boolean; inputImages: number }
+    > = {};
 
     for (const job of config.jobs) {
       const model = job.model || config.default_model || 'grok-imagine-image';
+      const resolution = (job.resolution || config.default_resolution || '1k') as '1k' | '2k';
       const n = job.n || 1;
       const isEdit = !!(job.image_path || job.image_base64 || job.image_url || job.image_paths || job.image_base64s || job.image_urls);
-      const key = `${model}${isEdit ? '_edit' : ''}`;
+      const key = `${model}@${resolution}${isEdit ? '_edit' : ''}`;
 
       // Count input images for cost estimation
       const inputImageCount = isEdit
@@ -95,7 +99,7 @@ export class BatchManager {
         : 0;
 
       if (!modelCounts[key]) {
-        modelCounts[key] = { count: 0, images: 0, isEdit, inputImages: 0 };
+        modelCounts[key] = { model, resolution, count: 0, images: 0, isEdit, inputImages: 0 };
       }
       modelCounts[key].count++;
       modelCounts[key].images += n;
@@ -107,14 +111,14 @@ export class BatchManager {
     let totalImages = 0;
 
     for (const [key, data] of Object.entries(modelCounts)) {
-      const modelName = key.replace('_edit', '') as keyof typeof MODEL_COSTS;
+      const modelName = data.model as keyof typeof MODEL_COSTS;
       const costs = MODEL_COSTS[modelName] || MODEL_COSTS['grok-imagine-image'];
-      const baseCost = costs.base * data.images;
+      const baseCost = costs.base[data.resolution] * data.images;
       const editCost = data.isEdit ? costs.edit_input * data.inputImages : 0;
       const cost = baseCost + editCost;
 
       breakdown.push({
-        model: key,
+        model: `${data.model} (${data.resolution})${data.isEdit ? ' edit' : ''}`,
         count: data.count,
         images: data.images,
         costMin: cost,

@@ -29,9 +29,12 @@ npx grok-imagine-image-mcp-server
 
 ## サポートモデル
 
-| モデル | 価格 | 画像編集 | 備考 |
-|--------|------|---------|------|
-| `grok-imagine-image` | $0.02/枚 | ✅ (+$0.002/入力) | **推奨・デフォルト** |
+| モデル | 価格 (1k) | 価格 (2k) | 画像編集 | 備考 |
+|--------|-----------|-----------|---------|------|
+| `grok-imagine-image` | $0.02/枚 | $0.02/枚 | ✅ (+$0.002/入力画像) | **推奨・デフォルト** |
+| `grok-imagine-image-pro` | $0.05/枚 | $0.07/枚 | ✅ (+$0.01/入力画像) | 高品質。`grok-imagine-image-quality` のエイリアス |
+
+価格は [xAI モデルドキュメント](https://docs.x.ai/developers/models/grok-imagine-image) に準拠。
 
 ## 必要条件
 
