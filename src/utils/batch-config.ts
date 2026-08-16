@@ -14,6 +14,9 @@ import {
   MODELS,
   ASPECT_RATIOS,
   RESOLUTIONS,
+  QUALITIES,
+  QUALITY_MODELS,
+  EDIT_MODELS,
 } from '../types/tools.js';
 
 /**
@@ -116,6 +119,15 @@ export function validateBatchConfig(config: BatchConfig): void {
     }
   }
 
+  // Validate default_quality
+  if (config.default_quality !== undefined) {
+    if (!QUALITIES.includes(config.default_quality as any)) {
+      throw new BatchConfigError(
+        `Invalid default_quality: ${config.default_quality}. Must be one of: ${QUALITIES.join(', ')}`
+      );
+    }
+  }
+
   // Validate default_aspect_ratio
   if (config.default_aspect_ratio !== undefined) {
     if (!ASPECT_RATIOS.includes(config.default_aspect_ratio as any)) {
@@ -164,6 +176,22 @@ function validateJobConfig(job: BatchJobConfig, index: number): void {
     }
   }
 
+  // Validate quality
+  if (job.quality !== undefined) {
+    if (!QUALITIES.includes(job.quality as any)) {
+      throw new BatchConfigError(
+        `${prefix}: Invalid quality "${job.quality}". Must be one of: ${QUALITIES.join(', ')}`
+      );
+    }
+
+    const model = job.model || 'grok-imagine-image';
+    if (!QUALITY_MODELS.includes(model as any)) {
+      throw new BatchConfigError(
+        `${prefix}: The quality parameter is only supported by: ${QUALITY_MODELS.join(', ')}`
+      );
+    }
+  }
+
   // Validate n
   if (job.n !== undefined) {
     if (typeof job.n !== 'number' || job.n < 1 || job.n > 10) {
@@ -178,9 +206,9 @@ function validateJobConfig(job: BatchJobConfig, index: number): void {
 
   if (isEditJob) {
     const model = job.model || 'grok-imagine-image';
-    if (model !== 'grok-imagine-image' && model !== 'grok-imagine-image-pro') {
+    if (!EDIT_MODELS.includes(model as any)) {
       throw new BatchConfigError(
-        `${prefix}: Image editing is only supported by grok-imagine-image and grok-imagine-image-pro models`
+        `${prefix}: Image editing is only supported by: ${EDIT_MODELS.join(', ')}`
       );
     }
 

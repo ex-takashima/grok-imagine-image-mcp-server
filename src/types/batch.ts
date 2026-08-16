@@ -2,7 +2,7 @@
  * Batch processing type definitions
  */
 
-import type { AspectRatio, Resolution, Model } from './tools.js';
+import type { AspectRatio, Resolution, Model, Quality } from './tools.js';
 
 /**
  * Individual job configuration in batch
@@ -18,6 +18,8 @@ export interface BatchJobConfig {
   aspect_ratio?: AspectRatio;
   /** Resolution (default: 1k) */
   resolution?: Resolution;
+  /** Quality tier (grok-imagine-image-2.0 only, default: medium) */
+  quality?: Quality;
   /** Number of images to generate for this prompt (1-10, default: 1) */
   n?: number;
 
@@ -68,6 +70,8 @@ export interface BatchConfig {
   default_model?: Model;
   /** Default resolution for all jobs */
   default_resolution?: Resolution;
+  /** Default quality tier for all jobs (grok-imagine-image-2.0 only) */
+  default_quality?: Quality;
   /** Default aspect ratio for all jobs */
   default_aspect_ratio?: AspectRatio;
 }

@@ -39,7 +39,7 @@ if (!apiKey) {
 const server = new Server(
   {
     name: 'grok-imagine-image-mcp-server',
-    version: '1.2.1',
+    version: '1.3.0',
   },
   {
     capabilities: {
@@ -54,7 +54,8 @@ const TOOLS = [
     name: 'generate_image',
     description:
       'Generate a new image from a text prompt using xAI Grok Imagine Image API. ' +
-      'Models: grok-imagine-image ($0.02/image at 1k or 2k), grok-imagine-image-pro (higher quality, $0.05/image at 1k, $0.07/image at 2k). ' +
+      'Models: grok-imagine-image ($0.02/image at 1k or 2k), grok-imagine-image-pro ($0.05/image at 1k, $0.07/image at 2k), ' +
+      'grok-imagine-image-2.0 (latest, $0.04-$0.08/image depending on resolution and quality). ' +
       'Supports aspect ratios: 1:1, 3:4, 4:3, 3:2, 2:3, 2:1, 1:2, 9:16, 16:9, 19.5:9, 9:19.5, 20:9, 9:20, auto. ' +
       'Can generate multiple images at once (up to 10).',
     inputSchema: {
@@ -70,8 +71,10 @@ const TOOLS = [
         },
         model: {
           type: 'string',
-          enum: ['grok-imagine-image', 'grok-imagine-image-pro'],
-          description: 'Model to use (default: grok-imagine-image $0.02/image; pro $0.05/image at 1k, $0.07/image at 2k)',
+          enum: ['grok-imagine-image', 'grok-imagine-image-pro', 'grok-imagine-image-2.0'],
+          description:
+            'Model to use (default: grok-imagine-image $0.02/image; pro $0.05/image at 1k, $0.07 at 2k; ' +
+            '2.0 $0.04 at 1k-low, $0.06 at 2k-low, $0.06 at 1k-medium, $0.08 at 2k-medium)',
         },
         n: {
           type: 'number',
@@ -91,9 +94,9 @@ const TOOLS = [
         },
         quality: {
           type: 'string',
-          enum: ['low', 'medium', 'high'],
+          enum: ['low', 'medium'],
           description:
-            'Quality of the output image (currently reserved for future use)',
+            'Quality tier. Only supported by grok-imagine-image-2.0 (default: medium)',
         },
         return_base64: {
           type: 'boolean',
@@ -112,7 +115,8 @@ const TOOLS = [
     name: 'edit_image',
     description:
       'Edit an existing image using xAI Grok Imagine Image API. ' +
-      'Models: grok-imagine-image ($0.02/image + $0.002/input image), grok-imagine-image-pro ($0.05/image at 1k or $0.07 at 2k + $0.01/input image). ' +
+      'Models: grok-imagine-image ($0.02/image + $0.002/input image), grok-imagine-image-pro ($0.05/image at 1k or $0.07 at 2k + $0.01/input image), ' +
+      'grok-imagine-image-2.0 ($0.04-$0.08/image + $0.01/input image). ' +
       'Provide a source image via file path, base64, or URL along with a prompt describing the desired changes. ' +
       'Supports up to 3 input images via image_paths/image_base64s/image_urls arrays.',
     inputSchema: {
@@ -156,6 +160,11 @@ const TOOLS = [
           type: 'string',
           description: 'Output file path (default: edited_image.jpg)',
         },
+        model: {
+          type: 'string',
+          enum: ['grok-imagine-image', 'grok-imagine-image-pro', 'grok-imagine-image-2.0'],
+          description: 'Model to use (default: grok-imagine-image)',
+        },
         n: {
           type: 'number',
           description: 'Number of edited images to generate (1-10, default: 1)',
@@ -172,6 +181,12 @@ const TOOLS = [
           enum: ['1k', '2k'],
           description:
             'Resolution of the output image (default: 1k)',
+        },
+        quality: {
+          type: 'string',
+          enum: ['low', 'medium'],
+          description:
+            'Quality tier. Only supported by grok-imagine-image-2.0 (default: medium)',
         },
         return_base64: {
           type: 'boolean',

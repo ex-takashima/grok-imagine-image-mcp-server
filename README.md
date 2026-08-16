@@ -31,9 +31,11 @@ npx grok-imagine-image-mcp-server
 
 | Model | Price (1k) | Price (2k) | Image Editing | Notes |
 |-------|-----------|-----------|---------------|-------|
-| `grok-imagine-image` | $0.02/image | $0.02/image | ✅ (+$0.002/input image) | **Recommended, Default** |
-| `grok-imagine-image-pro` | $0.05/image | $0.07/image | ✅ (+$0.01/input image) | Higher quality. Alias of `grok-imagine-image-quality` |
+| `grok-imagine-image` | $0.02/image | $0.02/image | ✅ (+$0.002/input image) | **Default** — cheapest |
+| `grok-imagine-image-pro` | $0.05/image | $0.07/image | ✅ (+$0.01/input image) | Alias of `grok-imagine-image-quality` |
+| `grok-imagine-image-2.0` | $0.04 (low) / $0.06 (medium) | $0.06 (low) / $0.08 (medium) | ✅ (+$0.01/input image) | **Latest** — supports `quality` |
 
+`quality` (`low` / `medium`, default `medium`) is accepted only by `grok-imagine-image-2.0`.
 Pricing per [xAI model docs](https://docs.x.ai/developers/models/grok-imagine-image).
 
 ## Requirements
@@ -100,12 +102,13 @@ Generate images from text prompts.
 | `n` | number | No | Number of images (1-10, default: 1) |
 | `aspect_ratio` | string | No | Aspect ratio (default: 1:1) |
 | `resolution` | string | No | Resolution (default: 1k) |
+| `quality` | string | No | `low` or `medium` (default: medium). **`grok-imagine-image-2.0` only** |
 | `return_base64` | boolean | No | Return base64 data (default: false) |
 | `include_thumbnail` | boolean | No | Include thumbnail (default: false) |
 
 ### edit_image
 
-Edit existing images (grok-imagine-image only).
+Edit existing images.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -114,8 +117,10 @@ Edit existing images (grok-imagine-image only).
 | `image_base64` | string | No* | Base64 encoded source image |
 | `image_url` | string | No* | URL of source image |
 | `output_path` | string | No | Output file path (default: edited_image.jpg) |
+| `model` | string | No | Model to use (default: grok-imagine-image) |
 | `n` | number | No | Number of images (1-10, default: 1) |
 | `resolution` | string | No | Resolution (default: 1k). Aspect ratio is auto-detected from input image. |
+| `quality` | string | No | `low` or `medium` (default: medium). **`grok-imagine-image-2.0` only** |
 
 *One of `image_path`, `image_base64`, or `image_url` is required
 

@@ -31,9 +31,11 @@ npx grok-imagine-image-mcp-server
 
 | モデル | 価格 (1k) | 価格 (2k) | 画像編集 | 備考 |
 |--------|-----------|-----------|---------|------|
-| `grok-imagine-image` | $0.02/枚 | $0.02/枚 | ✅ (+$0.002/入力画像) | **推奨・デフォルト** |
-| `grok-imagine-image-pro` | $0.05/枚 | $0.07/枚 | ✅ (+$0.01/入力画像) | 高品質。`grok-imagine-image-quality` のエイリアス |
+| `grok-imagine-image` | $0.02/枚 | $0.02/枚 | ✅ (+$0.002/入力画像) | **デフォルト**・最安 |
+| `grok-imagine-image-pro` | $0.05/枚 | $0.07/枚 | ✅ (+$0.01/入力画像) | `grok-imagine-image-quality` のエイリアス |
+| `grok-imagine-image-2.0` | $0.04 (low) / $0.06 (medium) | $0.06 (low) / $0.08 (medium) | ✅ (+$0.01/入力画像) | **最新**・`quality` 対応 |
 
+`quality`（`low` / `medium`、デフォルト `medium`）は `grok-imagine-image-2.0` のみが受け付けます。
 価格は [xAI モデルドキュメント](https://docs.x.ai/developers/models/grok-imagine-image) に準拠。
 
 ## 必要条件
@@ -100,12 +102,13 @@ grok-imagine-image-mcp-server
 | `n` | number | No | 生成枚数（1-10、デフォルト: 1） |
 | `aspect_ratio` | string | No | アスペクト比（デフォルト: 1:1） |
 | `resolution` | string | No | 解像度（デフォルト: 1k） |
+| `quality` | string | No | `low` / `medium`（デフォルト: medium）。**`grok-imagine-image-2.0` のみ対応** |
 | `return_base64` | boolean | No | Base64データを返す（デフォルト: false） |
 | `include_thumbnail` | boolean | No | サムネイルを含める（デフォルト: false） |
 
 ### edit_image
 
-既存画像を編集します（grok-imagine-image のみ対応）。
+既存画像を編集します。
 
 | パラメータ | 型 | 必須 | 説明 |
 |-----------|-----|------|------|
@@ -114,8 +117,10 @@ grok-imagine-image-mcp-server
 | `image_base64` | string | No* | 編集する画像のBase64データ |
 | `image_url` | string | No* | 編集する画像のURL |
 | `output_path` | string | No | 出力ファイルパス（デフォルト: edited_image.jpg） |
+| `model` | string | No | モデル（デフォルト: grok-imagine-image） |
 | `n` | number | No | 生成枚数（1-10、デフォルト: 1） |
 | `resolution` | string | No | 解像度（デフォルト: 1k）。アスペクト比は入力画像から自動検出。 |
+| `quality` | string | No | `low` / `medium`（デフォルト: medium）。**`grok-imagine-image-2.0` のみ対応** |
 
 *`image_path`、`image_base64`、`image_url` のいずれか1つが必須
 

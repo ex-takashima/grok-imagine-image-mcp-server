@@ -20,7 +20,14 @@ import {
 } from '../utils/path.js';
 import { debugLog } from '../utils/debug.js';
 import type { EditImageParams, XAIImageResponse } from '../types/tools.js';
-import { RESOLUTIONS, MODELS, ASPECT_RATIOS } from '../types/tools.js';
+import {
+  RESOLUTIONS,
+  MODELS,
+  ASPECT_RATIOS,
+  QUALITIES,
+  QUALITY_MODELS,
+  EDIT_MODELS,
+} from '../types/tools.js';
 
 // Edit endpoint is different from generation endpoint
 const XAI_EDIT_ENDPOINT = 'https://api.x.ai/v1/images/edits';
@@ -58,6 +65,7 @@ export async function editImage(
     n = 1,
     aspect_ratio,
     resolution = '1k',
+    quality,
     response_format = 'b64_json',
     return_base64 = false,
     include_thumbnail,
@@ -103,12 +111,27 @@ export async function editImage(
     );
   }
 
-  // Only grok-imagine-image and grok-imagine-image-pro support image editing
-  if (model !== 'grok-imagine-image' && model !== 'grok-imagine-image-pro') {
+  if (!EDIT_MODELS.includes(model as any)) {
     throw new McpError(
       ErrorCode.InvalidParams,
-      `Image editing is only supported by grok-imagine-image and grok-imagine-image-pro models. Got: ${model}`
+      `Image editing is only supported by: ${EDIT_MODELS.join(', ')}. Got: ${model}`
     );
+  }
+
+  if (quality !== undefined) {
+    if (!QUALITIES.includes(quality as any)) {
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid quality: ${quality}. Must be one of: ${QUALITIES.join(', ')}`
+      );
+    }
+
+    if (!QUALITY_MODELS.includes(model as any)) {
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `The quality parameter is only supported by: ${QUALITY_MODELS.join(', ')}. Got model: ${model}`
+      );
+    }
   }
 
   if (n < 1 || n > 10) {
@@ -191,6 +214,11 @@ export async function editImage(
       resolution,
       response_format,
     };
+
+    // Only grok-imagine-image-2.0 accepts quality; the API defaults it to medium
+    if (quality) {
+      requestBody.quality = quality;
+    }
 
     if (hasMultipleImages) {
       // Multi-image mode: collect all images into an array
@@ -355,6 +383,9 @@ export async function editImage(
     resultText += `\n  - Resolution: ${resolution}`;
     if (aspect_ratio) {
       resultText += `\n  - Aspect ratio: ${aspect_ratio}`;
+    }
+    if (quality) {
+      resultText += `\n  - Quality: ${quality}`;
     }
 
     // Add revised prompt if available

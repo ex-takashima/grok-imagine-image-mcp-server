@@ -3,7 +3,11 @@
  */
 
 // Supported models
-export const MODELS = ['grok-imagine-image', 'grok-imagine-image-pro'] as const;
+export const MODELS = [
+  'grok-imagine-image',
+  'grok-imagine-image-pro',
+  'grok-imagine-image-2.0',
+] as const;
 
 export type Model = (typeof MODELS)[number];
 
@@ -34,9 +38,21 @@ export type AspectRatio = (typeof ASPECT_RATIOS)[number];
 export const RESOLUTIONS = ['1k', '2k'] as const;
 export type Resolution = (typeof RESOLUTIONS)[number];
 
-// Quality options (currently no-op, reserved for future use)
-export const QUALITIES = ['low', 'medium', 'high'] as const;
+// Quality options (grok-imagine-image-2.0 only; the API default is medium)
+export const QUALITIES = ['low', 'medium'] as const;
 export type Quality = (typeof QUALITIES)[number];
+
+export const DEFAULT_QUALITY: Quality = 'medium';
+
+// Models accepting the quality parameter
+export const QUALITY_MODELS: readonly Model[] = ['grok-imagine-image-2.0'];
+
+// Models supporting image editing
+export const EDIT_MODELS: readonly Model[] = [
+  'grok-imagine-image',
+  'grok-imagine-image-pro',
+  'grok-imagine-image-2.0',
+];
 
 export interface GenerateImageParams {
   prompt: string;
@@ -64,6 +80,7 @@ export interface EditImageParams {
   n?: number;
   aspect_ratio?: AspectRatio;
   resolution?: Resolution;
+  quality?: Quality;
   response_format?: 'url' | 'b64_json';
   return_base64?: boolean;
   include_thumbnail?: boolean;

@@ -21,6 +21,7 @@ import {
   ASPECT_RATIOS,
   RESOLUTIONS,
   QUALITIES,
+  QUALITY_MODELS,
   MODELS,
 } from '../types/tools.js';
 
@@ -96,11 +97,20 @@ export async function generateImage(
     );
   }
 
-  if (quality && !QUALITIES.includes(quality as any)) {
-    throw new McpError(
-      ErrorCode.InvalidParams,
-      `Invalid quality: ${quality}. Must be one of: ${QUALITIES.join(', ')}`
-    );
+  if (quality !== undefined) {
+    if (!QUALITIES.includes(quality as any)) {
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Invalid quality: ${quality}. Must be one of: ${QUALITIES.join(', ')}`
+      );
+    }
+
+    if (!QUALITY_MODELS.includes(model as any)) {
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `The quality parameter is only supported by: ${QUALITY_MODELS.join(', ')}. Got model: ${model}`
+      );
+    }
   }
 
   try {
@@ -116,7 +126,7 @@ export async function generateImage(
       response_format,
     };
 
-    // Quality is currently no-op but include if specified
+    // Only grok-imagine-image-2.0 accepts quality; the API defaults it to medium
     if (quality) {
       requestBody.quality = quality;
     }

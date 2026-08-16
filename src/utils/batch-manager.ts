@@ -10,6 +10,8 @@ import type {
   BatchExecutionOptions,
   CostEstimate,
 } from '../types/batch.js';
+import type { Quality } from '../types/tools.js';
+import { DEFAULT_QUALITY, QUALITY_MODELS } from '../types/tools.js';
 import { resolveOutputPath, getDefaultOutputDirectory } from './batch-config.js';
 import { generateImage } from '../tools/generate.js';
 import { editImage } from '../tools/edit.js';
@@ -48,14 +50,28 @@ class Semaphore {
 }
 
 /**
- * Cost per image by model, per output resolution.
+ * Cost per image by model, per quality tier and output resolution.
  * Source: https://docs.x.ai/developers/models/grok-imagine-image
  *         https://docs.x.ai/developers/models/grok-imagine-image-pro
- * Note: grok-imagine-image-pro is an alias of grok-imagine-image-quality.
+ *         https://docs.x.ai/developers/models/grok-imagine-image-2.0
+ * Notes:
+ * - grok-imagine-image-pro is an alias of grok-imagine-image-quality.
+ * - quality only affects grok-imagine-image-2.0; the other models are billed
+ *   identically for both tiers, so their rows repeat the same prices.
  */
 const MODEL_COSTS = {
-  'grok-imagine-image': { base: { '1k': 0.02, '2k': 0.02 }, edit_input: 0.002 },
-  'grok-imagine-image-pro': { base: { '1k': 0.05, '2k': 0.07 }, edit_input: 0.01 },
+  'grok-imagine-image': {
+    base: { low: { '1k': 0.02, '2k': 0.02 }, medium: { '1k': 0.02, '2k': 0.02 } },
+    edit_input: 0.002,
+  },
+  'grok-imagine-image-pro': {
+    base: { low: { '1k': 0.05, '2k': 0.07 }, medium: { '1k': 0.05, '2k': 0.07 } },
+    edit_input: 0.01,
+  },
+  'grok-imagine-image-2.0': {
+    base: { low: { '1k': 0.04, '2k': 0.06 }, medium: { '1k': 0.06, '2k': 0.08 } },
+    edit_input: 0.01,
+  },
 };
 
 /**
@@ -75,15 +91,28 @@ export class BatchManager {
     const breakdown: CostEstimate['breakdown'] = [];
     const modelCounts: Record<
       string,
-      { model: string; resolution: '1k' | '2k'; count: number; images: number; isEdit: boolean; inputImages: number }
+      {
+        model: string;
+        resolution: '1k' | '2k';
+        quality: Quality;
+        count: number;
+        images: number;
+        isEdit: boolean;
+        inputImages: number;
+      }
     > = {};
 
     for (const job of config.jobs) {
       const model = job.model || config.default_model || 'grok-imagine-image';
       const resolution = (job.resolution || config.default_resolution || '1k') as '1k' | '2k';
+      // quality is ignored by models that do not accept it, so collapse it to the
+      // default there to keep those jobs in a single breakdown row
+      const quality = QUALITY_MODELS.includes(model)
+        ? job.quality || config.default_quality || DEFAULT_QUALITY
+        : DEFAULT_QUALITY;
       const n = job.n || 1;
       const isEdit = !!(job.image_path || job.image_base64 || job.image_url || job.image_paths || job.image_base64s || job.image_urls);
-      const key = `${model}@${resolution}${isEdit ? '_edit' : ''}`;
+      const key = `${model}@${resolution}@${quality}${isEdit ? '_edit' : ''}`;
 
       // Count input images for cost estimation
       const inputImageCount = isEdit
@@ -99,7 +128,7 @@ export class BatchManager {
         : 0;
 
       if (!modelCounts[key]) {
-        modelCounts[key] = { model, resolution, count: 0, images: 0, isEdit, inputImages: 0 };
+        modelCounts[key] = { model, resolution, quality, count: 0, images: 0, isEdit, inputImages: 0 };
       }
       modelCounts[key].count++;
       modelCounts[key].images += n;
@@ -113,12 +142,17 @@ export class BatchManager {
     for (const [key, data] of Object.entries(modelCounts)) {
       const modelName = data.model as keyof typeof MODEL_COSTS;
       const costs = MODEL_COSTS[modelName] || MODEL_COSTS['grok-imagine-image'];
-      const baseCost = costs.base[data.resolution] * data.images;
+      const baseCost = costs.base[data.quality][data.resolution] * data.images;
       const editCost = data.isEdit ? costs.edit_input * data.inputImages : 0;
       const cost = baseCost + editCost;
 
+      // quality only changes the price (and the label) for models that accept it
+      const label = QUALITY_MODELS.includes(data.model as any)
+        ? `${data.model} (${data.resolution}, ${data.quality})`
+        : `${data.model} (${data.resolution})`;
+
       breakdown.push({
-        model: `${data.model} (${data.resolution})${data.isEdit ? ' edit' : ''}`,
+        model: `${label}${data.isEdit ? ' edit' : ''}`,
         count: data.count,
         images: data.images,
         costMin: cost,
@@ -250,6 +284,11 @@ export class BatchManager {
   ): Promise<BatchJobResult> {
     const jobIndex = index + 1;
     const isEditJob = !!(job.image_path || job.image_base64 || job.image_url || job.image_paths || job.image_base64s || job.image_urls);
+    const model = job.model || config.default_model;
+    // a batch-wide default_quality must not leak into models that reject the parameter
+    const quality = QUALITY_MODELS.includes((model || 'grok-imagine-image') as any)
+      ? job.quality || config.default_quality
+      : undefined;
     const retryPolicy = config.retry_policy || { max_retries: 2, retry_delay_ms: 1000 };
     const maxRetries = retryPolicy.max_retries ?? 2;
     const retryDelay = retryPolicy.retry_delay_ms ?? 1000;
@@ -277,20 +316,22 @@ export class BatchManager {
             image_base64s: job.image_base64s,
             image_urls: job.image_urls,
             output_path: outputPath,
-            model: job.model || config.default_model,
+            model,
             n: job.n || 1,
             aspect_ratio: job.aspect_ratio,
             resolution: job.resolution || config.default_resolution,
+            quality,
           });
         } else {
           // Generate job
           result = await generateImage(this.apiKey, {
             prompt: job.prompt,
             output_path: outputPath,
-            model: job.model || config.default_model,
+            model,
             n: job.n || 1,
             aspect_ratio: job.aspect_ratio || config.default_aspect_ratio,
             resolution: job.resolution || config.default_resolution,
+            quality,
           });
         }
 
